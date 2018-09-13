@@ -34,6 +34,17 @@ namespace EindopdrachtServersideProgrammingTomFokker
 
             name = weather.main.temp.ToString();
 
+            // Create Queue message to trigger FunctionQueueTrigger
+            var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=8M0CNkCnMqzgPcliz3wYaBcR+HF8BXbVb9suJK6z942qNJlrEgUTE2/Yq+/u9BgOCOqu8U13K6+x+NbNimKzyw==;EndpointSuffix=core.windows.net");
+            var client = storageAccount.CreateCloudQueueClient();
+
+            var queue = client.GetQueueReference("beerqueue");
+            await queue.CreateIfNotExistsAsync();
+
+            var message = weather.coord.lon.ToString()+ " " + weather.coord.lat.ToString() + " " + weather.main.temp.ToString()+" "+ weather.wind.speed.ToString();
+            await queue.AddMessageAsync(new CloudQueueMessage(message));
+
+
             if (name == null)
             {
                 // Get request body
