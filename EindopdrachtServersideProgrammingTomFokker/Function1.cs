@@ -28,8 +28,11 @@ namespace EindopdrachtServersideProgrammingTomFokker
                 .FirstOrDefault(q => string.Compare(q.Key, "lastname", true) == 0)
                 .Value;
 
-
+            OpenWeatherMapAPIClient api = new OpenWeatherMapAPIClient();
+            OpenWeatherMapResult weather = api.GetWeather("London", "uk");
             //string name = req.Query["el1"];
+
+            name = weather.main.temp.ToString();
 
             if (name == null)
             {
