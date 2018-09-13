@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Queue;
 
 namespace EindopdrachtServersideProgrammingTomFokker
 {
@@ -20,7 +23,11 @@ namespace EindopdrachtServersideProgrammingTomFokker
             string name = req.GetQueryNameValuePairs()
                 .FirstOrDefault(q => string.Compare(q.Key, "name", true) == 0)
                 .Value;
-            
+
+            string lastname = req.GetQueryNameValuePairs()
+                .FirstOrDefault(q => string.Compare(q.Key, "lastname", true) == 0)
+                .Value;
+
 
             //string name = req.Query["el1"];
 
@@ -31,12 +38,29 @@ namespace EindopdrachtServersideProgrammingTomFokker
                 name = data?.name;
             }
 
+            if (lastname == null)
+            {
+                // Get request body
+                dynamic data = await req.Content.ReadAsAsync<object>();
+                lastname = data?.lastname;
+            }
+
             //return new OkObjectResult(name);
-            
+
+            if (name == null || lastname == null)
+            {
+                return req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a name on the query string or in the request body", "text/plain");
+            }
+            else
+            {
+                return req.CreateResponse(HttpStatusCode.OK, "Hello " + name, "text/plain");
+            }
+            /*
             return name == null
-                ? req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a name on the query string or in the request body", "textplain")
+                ? req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a name on the query string or in the request body", "text/plain")
                 : req.CreateResponse(HttpStatusCode.OK, "Hello " + name, "text/plain"); 
-            
+            */
         }
+
     }
 }
