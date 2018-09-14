@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -30,19 +31,40 @@ namespace EindopdrachtServersideProgrammingTomFokker
 
             OpenWeatherMapAPIClient api = new OpenWeatherMapAPIClient();
             OpenWeatherMapResult weather = api.GetWeather("London", "uk");
-            //string name = req.Query["el1"];
 
             name = weather.main.temp.ToString();
 
-            // Create Queue message to trigger FunctionQueueTrigger
+            // Storage acccount
             var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=8M0CNkCnMqzgPcliz3wYaBcR+HF8BXbVb9suJK6z942qNJlrEgUTE2/Yq+/u9BgOCOqu8U13K6+x+NbNimKzyw==;EndpointSuffix=core.windows.net");
-            var client = storageAccount.CreateCloudQueueClient();
 
-            var queue = client.GetQueueReference("beerqueue");
+            // Blob
+            var blobClient = storageAccount.CreateCloudBlobClient();
+
+            var container = blobClient.GetContainerReference("somecontainer");
+            await container.CreateIfNotExistsAsync();
+            await container.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
+
+            var blobName = $"{Guid.NewGuid().ToString()}.jpg";
+
+            var blob = container.GetBlockBlobReference(blobName);      
+            
+
+            // Create Queue message to trigger FunctionQueueTrigger
+            var queueClient = storageAccount.CreateCloudQueueClient();
+            var queue = queueClient.GetQueueReference("beerqueue");
             await queue.CreateIfNotExistsAsync();
 
-            var message = weather.coord.lon.ToString()+ " " + weather.coord.lat.ToString() + " " + weather.main.temp.ToString()+" "+ weather.wind.speed.ToString();
+            //var message = weather.coord.lon.ToString()+ " " + weather.coord.lat.ToString() + " " + weather.main.temp.ToString()+" "+ weather.wind.speed.ToString();
+            var message = blobName;
             await queue.AddMessageAsync(new CloudQueueMessage(message));
+
+            
+
+            // Get blob uri
+            string uri = container.StorageUri.PrimaryUri.AbsoluteUri;
+            string url = uri + "/" + blobName;
+
+            //WebRequest wr = WebRequest.Create(container.StorageUri.PrimaryUri);
 
 
             if (name == null)
@@ -67,7 +89,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
             }
             else
             {
-                return req.CreateResponse(HttpStatusCode.OK, "Hello " + name, "text/plain");
+                return req.CreateResponse(HttpStatusCode.OK, "Hello " + url, "text/plain");
             }
             /*
             return name == null
