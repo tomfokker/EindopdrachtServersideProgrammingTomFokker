@@ -44,9 +44,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
             await container.CreateIfNotExistsAsync();
             await container.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
 
-            var blobName = $"{Guid.NewGuid().ToString()}.jpg";
-
-            var blob = container.GetBlockBlobReference(blobName);      
+            var blobName = $"{Guid.NewGuid().ToString()}.png";
             
 
             // Create Queue message to trigger FunctionQueueTrigger

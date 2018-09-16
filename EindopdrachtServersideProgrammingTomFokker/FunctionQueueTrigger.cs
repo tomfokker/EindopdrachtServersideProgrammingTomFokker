@@ -24,8 +24,8 @@ namespace EindopdrachtServersideProgrammingTomFokker
             var blob = container.GetBlockBlobReference(myQueueItem);
 
 
-            // Gaat fout op de stream
             log.Info($"C# Queue trigger function processed: vlak voor memory stream");
+            /*
             WebClient webClient = new WebClient();
             MemoryStream memoryStream;
 
@@ -43,14 +43,22 @@ namespace EindopdrachtServersideProgrammingTomFokker
             {
                 webClient.Dispose();
             }
-            
+            */
+            AzureMapsRenderAPIClient azureMapsClient = new AzureMapsRenderAPIClient();
+            MemoryStream memoryStream = azureMapsClient.GetMap(-0.13, 51.51);
 
             //log.Info($"C# Queue trigger function processed: vlak voor stream");
             //var fileStream = File.OpenRead("trash.jpg");
 
             log.Info($"C# Queue trigger function processed: vlak voor upload");
-            blob.UploadFromStreamAsync(memoryStream);
-            
+            if (!(memoryStream is null))
+            {
+                blob.UploadFromStreamAsync(memoryStream);
+            }
+            else
+            {
+                log.Info($"C# Queue trigger function processed: upload mislukt");
+            }
 
         }
     }
