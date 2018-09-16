@@ -17,8 +17,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
             QueueMessage queueItem = Newtonsoft.Json.JsonConvert.DeserializeObject<QueueMessage>(myQueueItem);
 
             OpenWeatherMapAPIClient api = new OpenWeatherMapAPIClient();
-            OpenWeatherMapResult weather = api.GetWeather(queueItem.cityName, queueItem.countryCode);
-            string temp = weather.main.temp.ToString();
+            OpenWeatherMapResult weather = api.GetWeather(queueItem.cityName, queueItem.countryCode);            
 
             // Storage acccount
             var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=8M0CNkCnMqzgPcliz3wYaBcR+HF8BXbVb9suJK6z942qNJlrEgUTE2/Yq+/u9BgOCOqu8U13K6+x+NbNimKzyw==;EndpointSuffix=core.windows.net");
@@ -30,15 +29,25 @@ namespace EindopdrachtServersideProgrammingTomFokker
             var blob = container.GetBlockBlobReference(queueItem.blobName);
 
 
-            log.Info($"C# Queue trigger function processed: vlak voor memory stream");
-                        
+            log.Info($"C# Queue trigger function processed: azure maps");                        
             AzureMapsRenderAPIClient azureMapsClient = new AzureMapsRenderAPIClient();
             MemoryStream memoryStream = azureMapsClient.GetMap(weather.coord.lon, weather.coord.lat);
+
+            // Draw text on image
+            log.Info($"C# Queue trigger function processed: weer variabelen");
+            string temp = weather.main.temp.ToString();
+            string wind = weather.wind.ToString();
             
+            log.Info($"C# Queue trigger function processed: tekst tekenen");  
+            MemoryStream outMemoryStream = new MemoryStream();
+            ImageTextDrawer textDrawer = new ImageTextDrawer();
+            outMemoryStream = textDrawer.DrawTextOnImage(memoryStream, temp);
+
+
             log.Info($"C# Queue trigger function processed: vlak voor upload");
-            if (!(memoryStream is null))
+            if (!(outMemoryStream is null))
             {
-                blob.UploadFromStreamAsync(memoryStream);
+                blob.UploadFromStreamAsync(outMemoryStream);
             }
             else
             {
