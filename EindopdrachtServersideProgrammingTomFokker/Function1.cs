@@ -29,10 +29,11 @@ namespace EindopdrachtServersideProgrammingTomFokker
                 .FirstOrDefault(q => string.Compare(q.Key, "countrycode", true) == 0)
                 .Value;
 
+            /*
             OpenWeatherMapAPIClient api = new OpenWeatherMapAPIClient();
             OpenWeatherMapResult weather = api.GetWeather(cityName, countryCode);
-
-            cityName = weather.main.temp.ToString();
+            string temp = weather.main.temp.ToString();
+            */
 
             // Storage acccount
             var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=8M0CNkCnMqzgPcliz3wYaBcR+HF8BXbVb9suJK6z942qNJlrEgUTE2/Yq+/u9BgOCOqu8U13K6+x+NbNimKzyw==;EndpointSuffix=core.windows.net");
@@ -53,7 +54,12 @@ namespace EindopdrachtServersideProgrammingTomFokker
             await queue.CreateIfNotExistsAsync();
 
             //var message = weather.coord.lon.ToString()+ " " + weather.coord.lat.ToString() + " " + weather.main.temp.ToString()+" "+ weather.wind.speed.ToString();
-            var message = blobName;
+            //var message = blobName;
+            QueueMessage queueMessage = new QueueMessage();
+            queueMessage.cityName = cityName;
+            queueMessage.countryCode = countryCode;
+            queueMessage.blobName = blobName;
+            string message = Newtonsoft.Json.JsonConvert.SerializeObject(queueMessage);
             await queue.AddMessageAsync(new CloudQueueMessage(message));
 
             
