@@ -21,18 +21,18 @@ namespace EindopdrachtServersideProgrammingTomFokker
 
             
             // parse query parameter
-            string name = req.GetQueryNameValuePairs()
-                .FirstOrDefault(q => string.Compare(q.Key, "name", true) == 0)
+            string cityName = req.GetQueryNameValuePairs()
+                .FirstOrDefault(q => string.Compare(q.Key, "city", true) == 0)
                 .Value;
 
-            string lastname = req.GetQueryNameValuePairs()
-                .FirstOrDefault(q => string.Compare(q.Key, "lastname", true) == 0)
+            string countryCode = req.GetQueryNameValuePairs()
+                .FirstOrDefault(q => string.Compare(q.Key, "countrycode", true) == 0)
                 .Value;
 
             OpenWeatherMapAPIClient api = new OpenWeatherMapAPIClient();
-            OpenWeatherMapResult weather = api.GetWeather("London", "uk");
+            OpenWeatherMapResult weather = api.GetWeather(cityName, countryCode);
 
-            name = weather.main.temp.ToString();
+            cityName = weather.main.temp.ToString();
 
             // Storage acccount
             var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=8M0CNkCnMqzgPcliz3wYaBcR+HF8BXbVb9suJK6z942qNJlrEgUTE2/Yq+/u9BgOCOqu8U13K6+x+NbNimKzyw==;EndpointSuffix=core.windows.net");
@@ -65,29 +65,40 @@ namespace EindopdrachtServersideProgrammingTomFokker
             //WebRequest wr = WebRequest.Create(container.StorageUri.PrimaryUri);
 
 
-            if (name == null)
+            if (cityName == null)
             {
                 // Get request body
                 dynamic data = await req.Content.ReadAsAsync<object>();
-                name = data?.name;
+                cityName = data?.name;
             }
 
-            if (lastname == null)
+            if (countryCode == null)
             {
                 // Get request body
                 dynamic data = await req.Content.ReadAsAsync<object>();
-                lastname = data?.lastname;
+                countryCode = data?.lastname;
             }
 
             //return new OkObjectResult(name);
 
-            if (name == null || lastname == null)
+            if (cityName == null || countryCode == null)
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a name on the query string or in the request body", "text/plain");
             }
             else
             {
-                return req.CreateResponse(HttpStatusCode.OK, "Hello " + url, "text/plain");
+                Uri currentUrl = req.RequestUri;
+                string absoluteUrl = currentUrl.AbsoluteUri;
+                string urlWithoutQuery = absoluteUrl.Split('?')[0];
+                string beerReportUrl = urlWithoutQuery.Replace("function1", "beerreport?imagename=" + blobName);
+                //return req.CreateResponse(HttpStatusCode.OK, currentUrl.AbsoluteUri, "text/plain");
+                //return req.CreateResponse(HttpStatusCode.OK, "Hello " + url, "text/plain");
+                log.Info(beerReportUrl);
+
+                var response = req.CreateResponse(HttpStatusCode.Moved);
+                response.Headers.Location = new Uri(beerReportUrl);
+                return response;
+                
             }
             /*
             return name == null

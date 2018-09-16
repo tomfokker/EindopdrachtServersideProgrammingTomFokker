@@ -44,6 +44,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
                 webClient.Dispose();
             }
             */
+            
             AzureMapsRenderAPIClient azureMapsClient = new AzureMapsRenderAPIClient();
             MemoryStream memoryStream = azureMapsClient.GetMap(-0.13, 51.51);
 
@@ -59,7 +60,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
             {
                 log.Info($"C# Queue trigger function processed: upload mislukt");
             }
-
+            
         }
     }
 }
