@@ -24,7 +24,12 @@ namespace EindopdrachtServersideProgrammingTomFokker
             string imageName = req.GetQueryNameValuePairs()
                 .FirstOrDefault(q => string.Compare(q.Key, "imagename", true) == 0)
                 .Value;
-            
+
+            if (imageName == null)
+            {
+                return req.CreateResponse(HttpStatusCode.BadRequest, "Please pass an image name on the query string or in the request body", "text/plain");
+            }
+
             // Storage acccount
             var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=8M0CNkCnMqzgPcliz3wYaBcR+HF8BXbVb9suJK6z942qNJlrEgUTE2/Yq+/u9BgOCOqu8U13K6+x+NbNimKzyw==;EndpointSuffix=core.windows.net");
 
@@ -59,9 +64,6 @@ namespace EindopdrachtServersideProgrammingTomFokker
                 response.Content = new StringContent(html);
                 response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
                 return response;
-
-                //return req.CreateResponse(HttpStatusCode.OK, "<html><body><img src=\"" + url + "\" alt=\"Refresh om bier rapport te zien\"></body></html>", "text/html");
-                //return req.CreateResponse(HttpStatusCode.OK, "<html><body><img src=\"" + url + "\" alt=\"Refresh om bier rapport te zien\"></body></html>", "text/html");
             }
             
         }

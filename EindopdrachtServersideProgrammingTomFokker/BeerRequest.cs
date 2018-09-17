@@ -29,67 +29,35 @@ namespace EindopdrachtServersideProgrammingTomFokker
                 .FirstOrDefault(q => string.Compare(q.Key, "countrycode", true) == 0)
                 .Value;
 
-            /*
-            OpenWeatherMapAPIClient api = new OpenWeatherMapAPIClient();
-            OpenWeatherMapResult weather = api.GetWeather(cityName, countryCode);
-            string temp = weather.main.temp.ToString();
-            */
+            if (cityName == null || countryCode == null)
+            {
+                return req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a city and a countrycode on the query string or in the request body", "text/plain");
+            }
 
-            // Storage acccount
+            // Get storage acccount
             var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=8M0CNkCnMqzgPcliz3wYaBcR+HF8BXbVb9suJK6z942qNJlrEgUTE2/Yq+/u9BgOCOqu8U13K6+x+NbNimKzyw==;EndpointSuffix=core.windows.net");
 
-            // Blob
-            var blobClient = storageAccount.CreateCloudBlobClient();
+            // Create blobname
+            var blobName = $"{Guid.NewGuid().ToString()}.png";            
 
-            var container = blobClient.GetContainerReference("somecontainer");
-            await container.CreateIfNotExistsAsync();
-            await container.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
-
-            var blobName = $"{Guid.NewGuid().ToString()}.png";
-            
-
-            // Create Queue message to trigger FunctionQueueTrigger
+            // Get queue reference
             var queueClient = storageAccount.CreateCloudQueueClient();
             var queue = queueClient.GetQueueReference("beerqueue");
             await queue.CreateIfNotExistsAsync();
 
-            //var message = weather.coord.lon.ToString()+ " " + weather.coord.lat.ToString() + " " + weather.main.temp.ToString()+" "+ weather.wind.speed.ToString();
-            //var message = blobName;
+            // Create Queue message to trigger FunctionQueueTrigger
             QueueMessage queueMessage = new QueueMessage();
             queueMessage.cityName = cityName;
             queueMessage.countryCode = countryCode;
             queueMessage.blobName = blobName;
             string message = Newtonsoft.Json.JsonConvert.SerializeObject(queueMessage);
+
+            // Add message to queue
             await queue.AddMessageAsync(new CloudQueueMessage(message));
 
-            
-
-            // Get blob uri
-            string uri = container.StorageUri.PrimaryUri.AbsoluteUri;
-            string url = uri + "/" + blobName;
-
-            //WebRequest wr = WebRequest.Create(container.StorageUri.PrimaryUri);
-
-            /*
-            if (cityName == null)
+            if (blobName == null)
             {
-                // Get request body
-                dynamic data = await req.Content.ReadAsAsync<object>();
-                cityName = data?.cityName;
-            }
-
-            if (countryCode == null)
-            {
-                // Get request body
-                dynamic data = await req.Content.ReadAsAsync<object>();
-                countryCode = data?.countryCode;
-            }
-            */
-            //return new OkObjectResult(name);
-
-            if (cityName == null || countryCode == null)
-            {
-                return req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a name on the query string or in the request body", "text/plain");
+                return req.CreateResponse(HttpStatusCode.BadRequest, "Image could not be created", "text/plain");
             }
             else
             {
@@ -97,8 +65,6 @@ namespace EindopdrachtServersideProgrammingTomFokker
                 string absoluteUrl = currentUrl.AbsoluteUri;
                 string urlWithoutQuery = absoluteUrl.Split('?')[0];
                 string beerReportUrl = urlWithoutQuery.Replace("beerrequest", "beerreport?imagename=" + blobName);
-                //return req.CreateResponse(HttpStatusCode.OK, currentUrl.AbsoluteUri, "text/plain");
-                //return req.CreateResponse(HttpStatusCode.OK, "Hello " + url, "text/plain");
                 log.Info(beerReportUrl);
 
                 var response = req.CreateResponse(HttpStatusCode.Moved);
@@ -106,11 +72,6 @@ namespace EindopdrachtServersideProgrammingTomFokker
                 return response;
                 
             }
-            /*
-            return name == null
-                ? req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a name on the query string or in the request body", "text/plain")
-                : req.CreateResponse(HttpStatusCode.OK, "Hello " + name, "text/plain"); 
-            */
         }
 
     }
