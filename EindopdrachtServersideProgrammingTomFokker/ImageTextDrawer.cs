@@ -13,7 +13,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
     {
         public MemoryStream DrawTextOnImage(MemoryStream memoryStream, string temperature)
         {
-                        
+            
             Bitmap bitmap = (Bitmap)Image.FromStream(memoryStream);
             
             Graphics graphics = Graphics.FromImage(bitmap);

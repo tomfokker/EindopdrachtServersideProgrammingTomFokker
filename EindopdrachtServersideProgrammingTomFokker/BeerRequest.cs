@@ -12,9 +12,9 @@ using Microsoft.WindowsAzure.Storage.Queue;
 
 namespace EindopdrachtServersideProgrammingTomFokker
 {
-    public static class Function1
+    public static class BeerRequest
     {
-        [FunctionName("Function1")]
+        [FunctionName("BeerRequest")]
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequestMessage req, TraceWriter log)
         {
             log.Info("C# HTTP trigger function processed a request.");
@@ -70,21 +70,21 @@ namespace EindopdrachtServersideProgrammingTomFokker
 
             //WebRequest wr = WebRequest.Create(container.StorageUri.PrimaryUri);
 
-
+            /*
             if (cityName == null)
             {
                 // Get request body
                 dynamic data = await req.Content.ReadAsAsync<object>();
-                cityName = data?.name;
+                cityName = data?.cityName;
             }
 
             if (countryCode == null)
             {
                 // Get request body
                 dynamic data = await req.Content.ReadAsAsync<object>();
-                countryCode = data?.lastname;
+                countryCode = data?.countryCode;
             }
-
+            */
             //return new OkObjectResult(name);
 
             if (cityName == null || countryCode == null)
@@ -96,7 +96,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
                 Uri currentUrl = req.RequestUri;
                 string absoluteUrl = currentUrl.AbsoluteUri;
                 string urlWithoutQuery = absoluteUrl.Split('?')[0];
-                string beerReportUrl = urlWithoutQuery.Replace("function1", "beerreport?imagename=" + blobName);
+                string beerReportUrl = urlWithoutQuery.Replace("beerrequest", "beerreport?imagename=" + blobName);
                 //return req.CreateResponse(HttpStatusCode.OK, currentUrl.AbsoluteUri, "text/plain");
                 //return req.CreateResponse(HttpStatusCode.OK, "Hello " + url, "text/plain");
                 log.Info(beerReportUrl);
