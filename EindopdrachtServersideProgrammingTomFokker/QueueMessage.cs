@@ -9,7 +9,6 @@ namespace EindopdrachtServersideProgrammingTomFokker
     class QueueMessage
     {
         public string cityName { get; set; }
-        public string countryCode { get; set; }
         public string blobName { get; set; }
     }
 }

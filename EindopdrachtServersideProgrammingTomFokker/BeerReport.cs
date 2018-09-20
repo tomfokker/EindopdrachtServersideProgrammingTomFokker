@@ -31,7 +31,6 @@ namespace EindopdrachtServersideProgrammingTomFokker
             }
 
             // Storage acccount
-            //var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=q0DOCUvlKZbogKNVkkZTiASchMmI3jh8PdYjs8+HOqsopXyHEAudCg+iwLz7HEOvTWpMVwrhGqsY0AXeVtHBkQ==;EndpointSuffix=core.windows.net");
             string connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
             var storageAccount = CloudStorageAccount.Parse(connectionString + ";EndpointSuffix=core.windows.net");
 
@@ -54,7 +53,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
             log.Info("Voor image is null controle");
             if (imageName == null)
             {
-                return req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a name on the query string or in the request body", "text/plain");
+                return req.CreateResponse(HttpStatusCode.BadRequest, "U heeft een incorrecte afbeeldingnaam", "text/plain");
             }
             else
             {

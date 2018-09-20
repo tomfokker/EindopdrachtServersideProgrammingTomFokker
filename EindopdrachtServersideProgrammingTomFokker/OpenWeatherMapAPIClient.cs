@@ -11,8 +11,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
     public class OpenWeatherMapAPIClient
     {
         private const string url = "http://api.openweathermap.org/data/2.5/weather";
-        private string apiKey = Environment.GetEnvironmentVariable("OpenWeatherApiKey");
-        private const string defaultCountryCode = "nl";        
+        private string apiKey = Environment.GetEnvironmentVariable("OpenWeatherApiKey");   
 
         private OpenWeatherMapResult RunRequest(string queryParameters)
         {
@@ -24,36 +23,20 @@ namespace EindopdrachtServersideProgrammingTomFokker
 
             HttpResponseMessage response = client.GetAsync(queryParameters).Result;
 
-            OpenWeatherMapResult weather = new OpenWeatherMapResult();
-
             if (response.IsSuccessStatusCode)
             {
-                weather = response.Content.ReadAsAsync<OpenWeatherMapResult>().Result;                
+                return response.Content.ReadAsAsync<OpenWeatherMapResult>().Result;
             }
-
-            return weather;
-        }
-
-        public OpenWeatherMapResult GetWeather(string cityName, string countryCode)
-        {
-            string queryParameters = "?q=" + cityName + "," + countryCode + "&appid=" + this.apiKey;
-            return this.RunRequest(queryParameters);
-        }
-
-        public OpenWeatherMapResult GetWeather(string zipCode, string countryCode, bool zip)
-        {
-            string queryParameters = "?zip=" + zipCode + "," + countryCode + "&appid=" + this.apiKey;
-            return this.RunRequest(queryParameters);
+            else
+            {
+                return null;
+            }
         }
 
         public OpenWeatherMapResult GetWeather(string cityName)
         {
-            return this.GetWeather(cityName, defaultCountryCode);
-        }
-
-        public OpenWeatherMapResult GetWeather(string zipCode, bool zip)
-        {
-            return this.GetWeather(zipCode, defaultCountryCode, zip);
+            string queryParameters = "?q=" + cityName + "&appid=" + this.apiKey;
+            return this.RunRequest(queryParameters);
         }
     }
 }

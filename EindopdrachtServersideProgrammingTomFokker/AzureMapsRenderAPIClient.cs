@@ -25,8 +25,6 @@ namespace EindopdrachtServersideProgrammingTomFokker
             }
             catch (System.Exception e)
             {
-                // memoryStream can't be empty
-                //memoryStream = new MemoryStream();
                 return null;
             }
             finally

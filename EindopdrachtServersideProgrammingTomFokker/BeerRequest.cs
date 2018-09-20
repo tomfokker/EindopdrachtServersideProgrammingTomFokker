@@ -18,20 +18,15 @@ namespace EindopdrachtServersideProgrammingTomFokker
         public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequestMessage req, TraceWriter log)
         {
             log.Info("C# HTTP trigger function processed a request.");
-
             
             // parse query parameter
             string cityName = req.GetQueryNameValuePairs()
                 .FirstOrDefault(q => string.Compare(q.Key, "city", true) == 0)
                 .Value;
-
-            string countryCode = req.GetQueryNameValuePairs()
-                .FirstOrDefault(q => string.Compare(q.Key, "countrycode", true) == 0)
-                .Value;
-
-            if (cityName == null || countryCode == null)
+            
+            if (cityName == null)
             {
-                return req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a city and a countrycode on the query string or in the request body", "text/plain");
+                return req.CreateResponse(HttpStatusCode.BadRequest, "Geef een plaatsnaam op in de query.", "text/plain");
             }
 
             log.Info("C# connectionstring.");
@@ -51,7 +46,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
             // Create Queue message to trigger FunctionQueueTrigger
             QueueMessage queueMessage = new QueueMessage();
             queueMessage.cityName = cityName;
-            queueMessage.countryCode = countryCode;
+            //queueMessage.countryCode = countryCode;
             queueMessage.blobName = blobName;
             string message = Newtonsoft.Json.JsonConvert.SerializeObject(queueMessage);
 
@@ -60,7 +55,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
 
             if (blobName == null)
             {
-                return req.CreateResponse(HttpStatusCode.BadRequest, "Image could not be created", "text/plain");
+                return req.CreateResponse(HttpStatusCode.BadRequest, "De afbeelding kon niet worden gemaakt.", "text/plain");
             }
             else
             {
