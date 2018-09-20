@@ -32,7 +32,9 @@ namespace EindopdrachtServersideProgrammingTomFokker
             }
 
             // Get storage acccount
-            var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=8M0CNkCnMqzgPcliz3wYaBcR+HF8BXbVb9suJK6z942qNJlrEgUTE2/Yq+/u9BgOCOqu8U13K6+x+NbNimKzyw==;EndpointSuffix=core.windows.net");
+            //var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=q0DOCUvlKZbogKNVkkZTiASchMmI3jh8PdYjs8+HOqsopXyHEAudCg+iwLz7HEOvTWpMVwrhGqsY0AXeVtHBkQ==;EndpointSuffix=core.windows.net");
+            string connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+            var storageAccount = CloudStorageAccount.Parse(connectionString + ";EndpointSuffix=core.windows.net");
 
             // Create blob reference 
             var blobClient = storageAccount.CreateCloudBlobClient();

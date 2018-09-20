@@ -11,7 +11,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
     public class OpenWeatherMapAPIClient
     {
         private const string url = "http://api.openweathermap.org/data/2.5/weather";
-        private const string apiKey = "c589371603d5751adb5c198c4db9c22e";
+        private string apiKey = Environment.GetEnvironmentVariable("OpenWeatherApiKey");
         private const string defaultCountryCode = "nl";        
 
         private OpenWeatherMapResult RunRequest(string queryParameters)
@@ -36,13 +36,13 @@ namespace EindopdrachtServersideProgrammingTomFokker
 
         public OpenWeatherMapResult GetWeather(string cityName, string countryCode)
         {
-            string queryParameters = "?q=" + cityName + "," + countryCode + "&appid=" + apiKey;
+            string queryParameters = "?q=" + cityName + "," + countryCode + "&appid=" + this.apiKey;
             return this.RunRequest(queryParameters);
         }
 
         public OpenWeatherMapResult GetWeather(string zipCode, string countryCode, bool zip)
         {
-            string queryParameters = "?zip=" + zipCode + "," + countryCode + "&appid=" + apiKey;
+            string queryParameters = "?zip=" + zipCode + "," + countryCode + "&appid=" + this.apiKey;
             return this.RunRequest(queryParameters);
         }
 

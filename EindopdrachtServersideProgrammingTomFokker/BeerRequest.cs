@@ -34,9 +34,12 @@ namespace EindopdrachtServersideProgrammingTomFokker
                 return req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a city and a countrycode on the query string or in the request body", "text/plain");
             }
 
+            log.Info("C# connectionstring.");
             // Get storage acccount
-            var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=8M0CNkCnMqzgPcliz3wYaBcR+HF8BXbVb9suJK6z942qNJlrEgUTE2/Yq+/u9BgOCOqu8U13K6+x+NbNimKzyw==;EndpointSuffix=core.windows.net");
-
+            //var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=q0DOCUvlKZbogKNVkkZTiASchMmI3jh8PdYjs8+HOqsopXyHEAudCg+iwLz7HEOvTWpMVwrhGqsY0AXeVtHBkQ==;EndpointSuffix=core.windows.net");
+            string connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+            var storageAccount = CloudStorageAccount.Parse(connectionString + ";EndpointSuffix=core.windows.net");
+            log.Info("C# connectionstring.");
             // Create blobname
             var blobName = $"{Guid.NewGuid().ToString()}.png";            
 

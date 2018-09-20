@@ -11,7 +11,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
     class AzureMapsRenderAPIClient
     {
         private const string url = "https://atlas.microsoft.com/map/static/png";
-        private const string apiKey = "AMgCHC45yEuz7YgweBUaIrI6KXz38rkufOEXniWSHeY";
+        private string apiKey = Environment.GetEnvironmentVariable("AzureMapsApiKey");
 
         private MemoryStream RunRequest(string queryParameters)
         {
@@ -41,7 +41,7 @@ namespace EindopdrachtServersideProgrammingTomFokker
         {
             int zoom = 12;
             string layer = "basic";
-            string queryParameters = "?subscription-key=" + apiKey + "&api-version=1.0&style=main&layer=" + layer + "&zoom=" + zoom.ToString() + "&center=" + lon.ToString() + "," + lat.ToString();
+            string queryParameters = "?subscription-key=" + this.apiKey + "&api-version=1.0&style=main&layer=" + layer + "&zoom=" + zoom.ToString() + "&center=" + lon.ToString() + "," + lat.ToString();
             return this.RunRequest(queryParameters);
         }
     }
