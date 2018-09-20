@@ -31,7 +31,6 @@ namespace EindopdrachtServersideProgrammingTomFokker
 
             log.Info("C# connectionstring.");
             // Get storage acccount
-            //var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=tomazureteststorage;AccountKey=q0DOCUvlKZbogKNVkkZTiASchMmI3jh8PdYjs8+HOqsopXyHEAudCg+iwLz7HEOvTWpMVwrhGqsY0AXeVtHBkQ==;EndpointSuffix=core.windows.net");
             string connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
             var storageAccount = CloudStorageAccount.Parse(connectionString + ";EndpointSuffix=core.windows.net");
             log.Info("C# connectionstring.");
