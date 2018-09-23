@@ -38,10 +38,13 @@ namespace EindopdrachtServersideProgrammingTomFokker
             var blobClient = storageAccount.CreateCloudBlobClient();
 
             var container = blobClient.GetContainerReference("somecontainer");
+
+            // Get blob SAS token
+            string blobSASToken = BlobSASToken.GetBlobSasUri(container, imageName);
             
             // Get blob uri
             string uri = container.StorageUri.PrimaryUri.AbsoluteUri;
-            string url = uri + "/" + imageName;
+            string url = uri + "/" + imageName + blobSASToken;
             
             if (imageName == null)
             {

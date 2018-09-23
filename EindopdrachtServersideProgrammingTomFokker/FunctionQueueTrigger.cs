@@ -46,12 +46,11 @@ namespace EindopdrachtServersideProgrammingTomFokker
             string connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
             var storageAccount = CloudStorageAccount.Parse(connectionString + ";EndpointSuffix=core.windows.net");
 
-            // Create blob reference 
+            // Create blob reference, permissions can remain private because a SAS token is used to retrieve the blob
             var blobClient = storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference("somecontainer");
             container.CreateIfNotExistsAsync();
-            container.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
-            
+
             var blob = container.GetBlockBlobReference(queueItem.blobName);
 
             // Create error image
