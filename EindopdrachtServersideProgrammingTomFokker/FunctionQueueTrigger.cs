@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Queue;
 
 namespace EindopdrachtServersideProgrammingTomFokker
 {
@@ -21,76 +22,27 @@ namespace EindopdrachtServersideProgrammingTomFokker
 
             OpenWeatherMapAPIClient api = new OpenWeatherMapAPIClient();
             OpenWeatherMapResult weather = api.GetWeather(queueItem.cityName);
-            
-            // Determine beer weather
-            string beerAdvice;
-
-            if (weather != null)
-            {
-                if ((weather.main.temp - 272.15) < 16)
-                {
-                    beerAdvice = "Bier drinken wordt afgeraden.";
-                }
-                else
-                {
-                    beerAdvice = "Bier drinken is mogelijk";
-                }
-            }
-            else
-            {
-                // Error beer advice
-                beerAdvice = "Fout: is de plaatsnaam correct?";
-            }
 
             // Get storage acccount
             string connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
             var storageAccount = CloudStorageAccount.Parse(connectionString + ";EndpointSuffix=core.windows.net");
+            log.Info("C# connectionstring.");
 
-            // Create blob reference, permissions can remain private because a SAS token is used to retrieve the blob
-            var blobClient = storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference("somecontainer");
-            container.CreateIfNotExistsAsync();
+            // Get queue reference
+            var queueClient = storageAccount.CreateCloudQueueClient();
+            var queue = queueClient.GetQueueReference("weatherqueue");
+            queue.CreateIfNotExistsAsync();
 
-            var blob = container.GetBlockBlobReference(queueItem.blobName);
+            // Create Queue message to trigger FunctionSecondQueueTrigger
+            SecondQueueMessage secondQueueMessage = new SecondQueueMessage();
+            secondQueueMessage.blobName = queueItem.blobName;
+            secondQueueMessage.weather = weather;
 
-            // Create error image
-            if (weather == null)
-            {
-                Bitmap errorImage = new Bitmap(600, 600);
-                MemoryStream errorMemoryStream = new MemoryStream();
-                errorImage.Save(errorMemoryStream, ImageFormat.Png);
-                ImageTextDrawer errorTextDrawer = new ImageTextDrawer();
-                blob.UploadFromStreamAsync(errorTextDrawer.DrawTextOnImage(errorMemoryStream, beerAdvice, "-", "-"));
-                return;
-            }
+            string message = Newtonsoft.Json.JsonConvert.SerializeObject(secondQueueMessage);
 
-            // Get image from Azure maps
-            log.Info($"C# Queue trigger function processed: azure maps");                        
-            AzureMapsRenderAPIClient azureMapsClient = new AzureMapsRenderAPIClient();
-            MemoryStream memoryStream = azureMapsClient.GetMap(weather.coord.lon, weather.coord.lat);
+            // Add message to queue
+            queue.AddMessageAsync(new CloudQueueMessage(message));
 
-            // Draw text on image
-            log.Info($"C# Queue trigger function processed: weer variabelen");
-            string temperature = (weather.main.temp - 272.15).ToString();
-            string windspeed = weather.wind.speed.ToString();
-            
-            log.Info($"C# Queue trigger function processed: tekst tekenen");  
-            MemoryStream outMemoryStream = new MemoryStream();
-            ImageTextDrawer textDrawer = new ImageTextDrawer();
-            outMemoryStream = textDrawer.DrawTextOnImage(memoryStream, beerAdvice, temperature, windspeed);
-
-
-            log.Info($"C# Queue trigger function processed: vlak voor upload");
-            if (!(outMemoryStream is null))
-            {
-                // Upload image
-                blob.UploadFromStreamAsync(outMemoryStream);
-            }
-            else
-            {
-                log.Info($"C# Queue trigger function processed: upload mislukt");
-            }
-            
         }
     }
 }
